@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group>
+        <item
+            android:id="@+id/newTask"
+            android:icon="@drawable/ic_baseline_add_box_24"
+            android:title="New task" />
+        <item
+            android:id="@+id/createGroup"
+            android:icon="@drawable/ic_baseline_group_add_24"
+            android:title="Create Group" />
+
+        <item
+            android:id="@+id/myGroup"
+            android:icon="@drawable/ic_baseline_group_24"
+            android:title="My Groups" />
+        <item
+            android:id="@+id/joinGroup"
+            android:icon="@drawable/ic_baseline_group_add_24"
+            android:title="Join Group" />
+    </group>
+
+
+</menu>

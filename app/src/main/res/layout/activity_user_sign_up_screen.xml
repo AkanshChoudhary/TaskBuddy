@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UserSignUpScreen"
+    android:background="#086972"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+        <TextView
+            android:layout_marginTop="20dp"
+            android:id="@+id/head"
+            android:layout_width="match_parent"
+            android:padding="7dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bangers"
+            android:text="Task Buddy "
+            android:textAlignment="center"
+            android:textColor="#a7ff83"
+            android:textSize="50sp"
+            />
+
+        <TextView
+            android:layout_below="@id/head"
+            android:id="@+id/desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:padding="15dp"
+            android:text="Now Manage your tasks more efficiently and get the feature to share common tasks with a group. "
+            android:textAlignment="center"
+            android:textColor="#a7ff83"
+            android:textSize="16sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        >
+        <EditText
+            android:id="@+id/nameField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_background"
+            android:padding="20dp"
+            android:hint="Name"
+            android:textColor="#a7ff83"
+            android:layout_marginTop="20dp"
+            android:textColorHint="#a7ff83"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"/>
+        <Button
+            android:id="@+id/getStarted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_background"
+            android:backgroundTint="#a7ff83"
+            android:textColor="#086972"
+            android:text="Get Started!"
+            android:textSize="16sp"
+            android:layout_margin="10dp"
+            android:drawableEnd="@drawable/ic_baseline_arrow_forward_24"
+            android:drawablePadding="7dp"/>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
