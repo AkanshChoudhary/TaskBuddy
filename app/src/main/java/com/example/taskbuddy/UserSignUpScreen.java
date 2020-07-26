@@ -52,7 +52,7 @@ public class UserSignUpScreen extends AppCompatActivity {
                     batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(UserSignUpScreen.this, "All Done", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserSignUpScreen.this, "Signed In", Toast.LENGTH_SHORT).show();
                             loading.dismiss();
                             startActivity(new Intent(getApplicationContext(),MainUserDashboard.class));
                         }
