@@ -52,6 +52,7 @@ TaskItem currItem;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks_of_group);
         fAuth=FirebaseAuth.getInstance();
+        findViewById(R.id.backBtn3).setOnClickListener(v -> startActivity(new Intent(getApplicationContext(),MyGroups.class)));
         fStore=FirebaseFirestore.getInstance();
         heading=findViewById(R.id.groupNameCode);
         heading.setText(getIntent().getStringExtra("groupName")+" - "+getIntent().getStringExtra("groupCode"));
@@ -95,7 +96,6 @@ TaskItem currItem;
             tStatus.setText(taskItem.getTaskStatus());
             tDueDate.setText(taskItem.getDueDate());
             tAssign.setText(taskItem.getAssignedTo());
-            Toast.makeText(this, taskItem.getTaskName(), Toast.LENGTH_SHORT).show();
             dialog.create();
             dialog.show();
             dialog.setCanceledOnTouchOutside(false);
@@ -196,8 +196,28 @@ TaskItem currItem;
                         Calendar.getInstance().get(Calendar.MONTH),
                         Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
-                Toast.makeText(this, prevDate, Toast.LENGTH_SHORT).show();
-                Toast.makeText(this,dateUpdate.getText().toString() , Toast.LENGTH_SHORT).show();
+            });
+            dialog.findViewById(R.id.taskDone).setOnClickListener(v->{
+                dialog.dismiss();
+                Dialog loading = new Dialog(TasksOfGroup.this,R.style.DialogTheme);
+                loading.setContentView(R.layout.loading_dialog);
+                loading.create();
+                loading.show();
+                taskItemList.get(pos).setTaskStatus("Completed");
+                dashBoardRecyclerAdapter.notifyDataSetChanged();
+                fStore.collection("All Groups").document(getIntent().getStringExtra("groupCode"))
+                        .collection("allTasks").get().addOnCompleteListener(task -> {
+                   for(QueryDocumentSnapshot dc:task.getResult()){
+                       if(dc.getString("taskName").equals(taskItemList.get(pos).getTaskName())&&
+                               dc.getString("taskDesc").equals(taskItemList.get(pos).getTaskDesc())){
+                           String id=dc.getId();
+                           fStore.collection("All Groups").document(getIntent().getStringExtra("groupCode"))
+                                   .collection("allTasks").document(id).update("status","Completed").
+                                   addOnSuccessListener(aVoid -> loading.dismiss());
+                       }
+                   }
+                });
+
             });
         });
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
@@ -292,8 +312,6 @@ TaskItem currItem;
         dialog.setContentView(R.layout.loading_dialog);
         dialog.create();
         dialog.show();
-        Toast.makeText(this, taskItem.getTaskName(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, taskItem.getTaskDesc(), Toast.LENGTH_SHORT).show();
 
         fStore.collection("All Groups").document(getIntent().getStringExtra("groupCode")).collection("allTasks")
                 .orderBy("timeStamp", Query.Direction.DESCENDING)
@@ -301,12 +319,9 @@ TaskItem currItem;
                 .addOnCompleteListener(task -> {
                     for(QueryDocumentSnapshot dc: task.getResult())
                     {
-                        Toast.makeText(this, dc.getString("taskName"), Toast.LENGTH_SHORT).show();
-                        Toast.makeText(this, dc.getString("taskDesc"), Toast.LENGTH_SHORT).show();
                         if(dc.getString("taskName").equals(taskItem.getTaskName())
                         && dc.getString("taskDesc").equals(taskItem.getTaskDesc())
                         ){
-                            Toast.makeText(this, "Success 2", Toast.LENGTH_SHORT).show();
                             String id=dc.getId();
                             fStore.collection("All Groups").document(getIntent().getStringExtra("groupCode"))
                                     .collection("allTasks").document(id).update(type,newDetail)

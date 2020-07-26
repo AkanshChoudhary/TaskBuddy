@@ -7,8 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -39,8 +37,6 @@ FirebaseAuth firebaseAuth;
                    List<String> items= (List<String>) documentSnapshot.get("Groups");
                    for(int i=1;i<items.size();i++)
                    {
-                       Toast.makeText(this, items.get(i).substring(7), Toast.LENGTH_SHORT).show();
-                       Toast.makeText(this, items.get(i).substring(0,6), Toast.LENGTH_SHORT).show();
                        groupItems.add(new GroupItem(items.get(i).substring(7),items.get(i).substring(0,6)));
                        adapter.notifyDataSetChanged();
                    }

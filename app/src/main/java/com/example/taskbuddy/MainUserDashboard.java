@@ -127,7 +127,6 @@ String currDate;
             tDesc.setText(taskItem.getTaskDesc());
             tStatus.setText(taskItem.getTaskStatus());
            tDueDate.setText(taskItem.getDueDate());
-            Toast.makeText(this, taskItem.getTaskName(), Toast.LENGTH_SHORT).show();
             dialog.create();
             dialog.show();
             dialog.setCanceledOnTouchOutside(false);
@@ -206,8 +205,6 @@ String currDate;
                         Calendar.getInstance().get(Calendar.MONTH),
                         Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
-                Toast.makeText(this, prevDate, Toast.LENGTH_SHORT).show();
-                Toast.makeText(this,dateUpdate.getText().toString() , Toast.LENGTH_SHORT).show();
             });
             dialog.findViewById(R.id.taskDone).setOnClickListener(v->{
                 dialog.dismiss();
@@ -367,7 +364,6 @@ String currDate;
                    for(QueryDocumentSnapshot dc: task.getResult())
                    {
                        if(dc.getString(type).equals(previousDetail)){
-                           Toast.makeText(this, "Success 2", Toast.LENGTH_SHORT).show();
                            String id=dc.getId();
                            firebaseFirestore.collection("user+"+firebaseAuth.getCurrentUser().getUid()).document("allTasks")
                                    .collection("tasks").document(id).update(type,newDetail)
