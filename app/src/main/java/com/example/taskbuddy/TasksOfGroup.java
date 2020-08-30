@@ -368,8 +368,7 @@ TaskItem currItem;
                                     .get()
                                     .addOnCompleteListener(task -> {
                                        for(QueryDocumentSnapshot dc:task.getResult()){
-                                           if(taskItemList.get(pos).getTaskName().equals(dc.getString("taskName"))
-                                           &&taskItemList.get(pos).getTaskDesc().equals(dc.getString("taskDesc"))){
+                                           if((dc.getString("taskName").equals(deletedItem.getTaskName()))){
                                                String id=dc.getId();
                                                fStore.collection("All Groups").document(getIntent().getStringExtra("groupCode")).collection("allTasks")
                                                        .document(id).delete()
