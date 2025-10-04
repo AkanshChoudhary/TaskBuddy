@@ -1,0 +1,37 @@
+// Simple test model to validate FSP syntax
+const N_RIDERS = 2
+const N_DRIVERS = 2
+
+range RIDERS = 1..N_RIDERS
+range DRIVERS = 1..N_DRIVERS
+
+// Simple RIDER process
+RIDER(ID) = (
+    request[ID] -> match[ID][1] -> RIDER(ID)
+  | request[ID] -> match[ID][2] -> RIDER(ID)
+).
+
+// Simple DRIVER process  
+DRIVER(D) = (
+    match[1][D] -> complete[D] -> DRIVER(D)
+  | match[2][D] -> complete[D] -> DRIVER(D)
+).
+
+// Simple SCHEDULER
+SCHEDULER = (
+    request[1] -> match[1][1] -> SCHEDULER
+  | request[1] -> match[1][2] -> SCHEDULER
+  | request[2] -> match[2][1] -> SCHEDULER
+  | request[2] -> match[2][2] -> SCHEDULER
+  | complete[1] -> SCHEDULER
+  | complete[2] -> SCHEDULER
+).
+
+// System composition
+||SYSTEM = (
+    RIDER(1)
+  || RIDER(2)
+  || DRIVER(1)
+  || DRIVER(2)
+  || SCHEDULER
+).

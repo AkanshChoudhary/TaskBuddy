@@ -1,0 +1,149 @@
+/***
+ * System Model (Corrected for LTSA)
+ * Ride Sharing App - Presto Match Making Protocol
+ ***/
+
+const N_RIDERS = 2
+const N_DRIVERS = 2
+
+range RIDERS = 1..N_RIDERS
+range DRIVERS = 1..N_DRIVERS
+
+// RIDER requests a ride and waits to be matched
+RIDER(ID) = (
+    request[ID] -> match[ID][1] -> RIDER(ID)
+  | request[ID] -> match[ID][2] -> RIDER(ID)
+).
+
+// DRIVER waits to be matched, completes the ride, and signals completion
+DRIVER(D) = (
+    match[1][D] -> complete[D] -> DRIVER(D)
+  | match[2][D] -> complete[D] -> DRIVER(D)
+).
+
+// SCHEDULER enforces FCFS and manages driver availability
+SCHEDULER(d_avail) = Q_EMPTY[d_avail],
+
+Q_EMPTY[d_avail:0..N_DRIVERS] = (
+    request[1] -> Q_ONE[d_avail][1]
+  | request[2] -> Q_ONE[d_avail][2]
+  | when (d_avail < N_DRIVERS) complete[1] -> Q_EMPTY[d_avail+1]
+  | when (d_avail < N_DRIVERS) complete[2] -> Q_EMPTY[d_avail+1]
+),
+
+Q_ONE[d_avail:0..N_DRIVERS][r1:1..N_RIDERS] = (
+    when (d_avail > 0) match[r1][1] -> Q_EMPTY[d_avail-1]
+  | when (d_avail > 0) match[r1][2] -> Q_EMPTY[d_avail-1]
+  | when (r1 == 1) request[2] -> Q_TWO[d_avail][1][2]
+  | when (r1 == 2) request[1] -> Q_TWO[d_avail][2][1]
+  | when (d_avail < N_DRIVERS) complete[1] -> Q_ONE[d_avail+1][r1]
+  | when (d_avail < N_DRIVERS) complete[2] -> Q_ONE[d_avail+1][r1]
+),
+
+Q_TWO[d_avail:0..N_DRIVERS][r1:1..N_RIDERS][r2:1..N_RIDERS] = (
+    when (d_avail > 0) match[r1][1] -> Q_ONE[d_avail-1][r2]
+  | when (d_avail > 0) match[r1][2] -> Q_ONE[d_avail-1][r2]
+  | when (d_avail < N_DRIVERS) complete[1] -> Q_TWO[d_avail+1][r1][r2]
+  | when (d_avail < N_DRIVERS) complete[2] -> Q_TWO[d_avail+1][r1][r2]
+).
+
+// System Composition
+||PRESTO = (
+    RIDER(1)
+  || RIDER(2)
+  || DRIVER(1)
+  || DRIVER(2)
+  || SCHEDULER(N_DRIVERS)
+).
+
+/***
+ * Properties for Verification
+ ***/
+
+// Property 1: FCFS for Rider 1 then 2 (Safety)
+property FCFS_12 = (
+    request[1] -> R1_WAITS
+),
+
+R1_WAITS = (
+    match[1][1] -> FCFS_12
+  | match[1][2] -> FCFS_12
+  | request[2] -> R1_R2_WAIT
+  | request[1] -> R1_WAITS
+  | complete[1] -> R1_WAITS
+  | complete[2] -> R1_WAITS
+),
+
+R1_R2_WAIT = (
+    match[2][1] -> ERROR        // Violation: R2 matched before R1
+  | match[2][2] -> ERROR        // Violation: R2 matched before R1
+  | match[1][1] -> R2_WAITS     // Correct: R1 matched first
+  | match[1][2] -> R2_WAITS     // Correct: R1 matched first
+  | request[1] -> R1_R2_WAIT
+  | request[2] -> R1_R2_WAIT
+  | complete[1] -> R1_R2_WAIT
+  | complete[2] -> R1_R2_WAIT
+),
+
+R2_WAITS = (
+    match[2][1] -> FCFS_12
+  | match[2][2] -> FCFS_12
+  | request[1] -> R2_WAITS
+  | request[2] -> R2_WAITS
+  | complete[1] -> R2_WAITS
+  | complete[2] -> R2_WAITS
+  | match[1][1] -> R2_WAITS
+  | match[1][2] -> R2_WAITS
+).
+
+// Property 1b: Symmetric FCFS for Rider 2 then 1 (Safety)
+property FCFS_21 = (
+    request[2] -> R2_WAITS_21
+),
+
+R2_WAITS_21 = (
+    match[2][1] -> FCFS_21
+  | match[2][2] -> FCFS_21
+  | request[1] -> R2_R1_WAIT_21
+  | request[2] -> R2_WAITS_21
+  | complete[1] -> R2_WAITS_21
+  | complete[2] -> R2_WAITS_21
+),
+
+R2_R1_WAIT_21 = (
+    match[1][1] -> ERROR        // Violation: R1 matched before R2
+  | match[1][2] -> ERROR        // Violation: R1 matched before R2
+  | match[2][1] -> R1_WAITS_21  // Correct: R2 matched first
+  | match[2][2] -> R1_WAITS_21  // Correct: R2 matched first
+  | request[1] -> R2_R1_WAIT_21
+  | request[2] -> R2_R1_WAIT_21
+  | complete[1] -> R2_R1_WAIT_21
+  | complete[2] -> R2_R1_WAIT_21
+),
+
+R1_WAITS_21 = (
+    match[1][1] -> FCFS_21
+  | match[1][2] -> FCFS_21
+  | request[1] -> R1_WAITS_21
+  | request[2] -> R1_WAITS_21
+  | complete[1] -> R1_WAITS_21
+  | complete[2] -> R1_WAITS_21
+  | match[2][1] -> R1_WAITS_21
+  | match[2][2] -> R1_WAITS_21
+).
+
+// Property 2: Every request is eventually served (Liveness)
+progress Rider1Served = {match[1][1], match[1][2]}
+progress Rider2Served = {match[2][1], match[2][2]}
+
+// Property 3: No deadlock (Safety)
+property NoDeadlock = (
+    request[1] -> NoDeadlock
+  | request[2] -> NoDeadlock
+  | match[1][1] -> NoDeadlock
+  | match[1][2] -> NoDeadlock
+  | match[2][1] -> NoDeadlock
+  | match[2][2] -> NoDeadlock
+  | complete[1] -> NoDeadlock
+  | complete[2] -> NoDeadlock
+).
